@@ -1,29 +1,22 @@
-name: Job Alerts
+name: Job Alert Bot
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '0 */2 * * *' # every 2 hours
+    - cron: "*/15 * * * *"  # Every 15 minutes
+  workflow_dispatch:
 
 jobs:
-  run-script:
+  run-job-alert:
     runs-on: ubuntu-latest
 
-    env:
-      EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
-      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-      EMAIL_TO: ${{ secrets.EMAIL_TO }}
-      INDEED_QUERY: ${{ secrets.INDEED_QUERY }}
-      INDEED_LOCATION: ${{ secrets.INDEED_LOCATION }}
-
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.x
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
@@ -31,4 +24,10 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run job alert script
-        run: python job_alert.py
+        env:
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        run: python main.py
