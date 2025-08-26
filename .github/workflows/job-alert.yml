@@ -1,32 +1,33 @@
 name: Job Alerts
 
 on:
+  workflow_dispatch:  # Manual run trigger
   schedule:
-    - cron: "*/15 * * * *"
-  workflow_dispatch:
+    - cron: '0 14 * * *'  # 7am PT daily
 
 jobs:
-  run-alert:
+  send-job-alerts:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
-
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
+          python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install feedparser
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Run job alert script
+      - name: Run Job Alerts Script
         env:
-          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
-          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-        run: python main.py
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+        run: |
+          python job_alert.py
+
